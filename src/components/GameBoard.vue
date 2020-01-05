@@ -1,4 +1,3 @@
-/* eslint-disable */
 <template>
   <div id="gameBoard" ref="gameBoard"></div>
 </template>
@@ -19,8 +18,7 @@ export default {
   },
   computed: {},
   watch: {},
-  methods: {
-    /* eslint-disable */
+  methods: {   
     initialize() {
       new Promise(resolve => {
         this.createNewBoard();
@@ -62,7 +60,7 @@ export default {
       let me = this;
       setInterval(function() {
         me.chageRamdomCell();
-      }, 1200);
+      }, 1500);
     }
   }
 };
