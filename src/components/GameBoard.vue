@@ -16,26 +16,28 @@ export default {
       dropRow: 0,
       dropCol: 3,
       shapeTypes: [
-        "IShape",
-        "JShape",
-        "LShape",
-        "OShape",
-        "SShape",
-        "TShape",
-        "ZShape"
+        "IShape", //0
+        "JShape", //1
+        "LShape", //2
+        "OShape", //3
+        "SShape", //4
+        "TShape", //5
+        "ZShape" //6
       ],
+      shapeTypeIndex: 0, //type I,J, O,...
+      shapeGenericIndex: 0, //type I0, I1,...
+      currentShape: null,
       shapes: {
         IShape: [
-          [1, 0],
-          [3, 1],
-          [2, 3],
-          [0, 2]
+          [1, 0, 0],
+          [1, 0, 0],
+          [1, 0, 0]
         ],
+
         JShape: [
-          [1, 0],
-          [2, 1],
-          [1, 2],
-          [2, 0]
+          [0, 1, 0],
+          [0, 1, 0],
+          [1, 1, 0]
         ],
 
         LShape: [
@@ -50,22 +52,19 @@ export default {
           [0, 0, 0]
         ],
         SShape: [
-          [0, 2],
-          [0, 0],
-          [2, 0],
-          [2, 2]
+          [0, 1, 1],
+          [1, 1, 0],
+          [0, 0, 0]
         ],
         TShape: [
-          [0, 1],
-          [1, 0],
-          [2, 1],
-          [1, 2]
+          [1, 1, 1],
+          [0, 1, 0],
+          [0, 1, 0]
         ],
         ZShape: [
-          [0, 1],
-          [1, 0],
-          [2, 1],
-          [1, 2]
+          [1, 1, 0],
+          [0, 1, 1],
+          [0, 0, 0]
         ]
       }
     };
@@ -138,7 +137,8 @@ export default {
       }
     },
 
-    drawShape(row, col, shapeType, shapeIndex) {
+    drawShape(row, col, shapeTypeIndex, shapeGenericIndex) {
+      let me=this;
       //clean previous shape
       var cells = document.getElementsByClassName("boardCell activeCell");
       cells.forEach(cell => {
@@ -146,12 +146,48 @@ export default {
       });
 
       //render shape
+      var currentShape = [];
+      switch (shapeTypeIndex) {
+        case 0: //IShape
+          currentShape = me.shapes.IShape;
+          break;
+
+        case 1: //J
+          currentShape = me.shapes.JShape;
+          break;
+
+        case 2: //L
+          currentShape = me.shapes.LShape;
+          break;
+
+        case 3: //O
+          currentShape = me.shapes.OShape;
+          break;
+
+        case 4: //S
+          currentShape = me.shapes.SShape;
+          break;
+
+        case 5: //T
+          currentShape = me.shapes.TShape;
+          break;
+
+        case 6: //Z
+          currentShape = me.shapes.ZShape;
+          break;
+
+        default:
+          currentShape = me.shapes.IShape;
+          break;
+      }
+
+      debugger
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
           let cellRow = row + i;
           let cellCol = col + j;
           //console.log("cell " + cellRow + "-" + cellCol + "= " + this.shapes.LShape[i][j]);
-          if (this.shapes.LShape[i][j]) {
+          if (currentShape[i][j]) {
             //console.log("get active cell " + cellRow + "-" + cellCol);
             let tempCell = document.getElementById(cellRow + "-" + cellCol);
             //debugger
@@ -169,20 +205,32 @@ export default {
       });
     },
 
+    getRandomShape() {
+      this.dropRow = 0;
+      this.drowCol = 3; //format shape to drop center
+      var shapeLength = this.shapeTypes.length;
+      this.shapeTypeIndex = Math.floor(Math.random() * shapeLength);
+      console.log(this.shapeTypeIndex);
+    },
+
     runGame() {
       let me = this;
       setInterval(function() {
         new Promise(resolve => {
-          me.drawShape(me.dropRow, me.dropCol, 1, 1);
+          me.drawShape(
+            me.dropRow,
+            me.dropCol,
+            me.shapeTypeIndex,
+            me.shapeGenericIndex
+          );
           resolve();
         }).then(() => {
           me.dropShape();
-          if (me.dropRow >= me.maxRow) {
-            me.dropRow = 0;
-            me.drowCol = 3; //format shape to drop center
+          if (me.dropRow >= me.maxRow - 3) {
+            me.getRandomShape();
           }
         });
-      }, 1000);
+      }, 100);
     }
   }
 };
