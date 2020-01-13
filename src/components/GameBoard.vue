@@ -133,19 +133,31 @@ export default {
         this.dropRow++;
       } else if (this.dropRow >= this.maxRow) {
         this.dropRow = 0;
-        this.drowCol = 3; //format shape to drop center
+        this.dropCol = 3; //format shape to drop center
       }
     },
 
     drawShape(row, col, shapeTypeIndex, shapeGenericIndex) {
-      let me=this;
+      var me = this;
       //clean previous shape
-      var cells = document.getElementsByClassName("boardCell activeCell");
+      me.clearActiveCell();
+
+      //render shape
+      setTimeout(function() {
+        me.renderShape(row, col, shapeTypeIndex, shapeGenericIndex);
+      }, 1500);
+      //console.log("==================================================");
+    },
+
+    clearActiveCell() {
+      var cells = document.getElementsByClassName("activeCell");
       cells.forEach(cell => {
         cell.classList.remove("activeCell");
       });
+    },
 
-      //render shape
+    renderShape(row, col, shapeTypeIndex, shapeGenericIndex) {
+      var me = this;
       var currentShape = [];
       switch (shapeTypeIndex) {
         case 0: //IShape
@@ -180,37 +192,31 @@ export default {
           currentShape = me.shapes.IShape;
           break;
       }
-
-      debugger
+      var cells=[];
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
           let cellRow = row + i;
           let cellCol = col + j;
-          //console.log("cell " + cellRow + "-" + cellCol + "= " + this.shapes.LShape[i][j]);
           if (currentShape[i][j]) {
-            //console.log("get active cell " + cellRow + "-" + cellCol);
             let tempCell = document.getElementById(cellRow + "-" + cellCol);
-            //debugger
-            if (tempCell) tempCell.classList.add("activeCell");
+            //tempCell.classList.add("activeCell");
+            if (tempCell) cells.push(tempCell);
           }
         }
       }
-      //console.log("==================================================");
-    },
-
-    clearActiveCell() {
-      var cells = document.getElementsByClassName("boardCell activeCell");
-      cells.forEach(cell => {
-        cell.classList.remove("activeCell");
-      });
+      if(cells.length>=3){
+        cells.forEach(cell => {
+          cell.classList.add("activeCell");
+        });
+      }
     },
 
     getRandomShape() {
       this.dropRow = 0;
-      this.drowCol = 3; //format shape to drop center
+      this.dropCol = 3; //format shape to drop center
       var shapeLength = this.shapeTypes.length;
       this.shapeTypeIndex = Math.floor(Math.random() * shapeLength);
-      console.log(this.shapeTypeIndex);
+      console.log("shapeIndex"+ this.shapeTypeIndex);
     },
 
     runGame() {
@@ -225,12 +231,15 @@ export default {
           );
           resolve();
         }).then(() => {
-          me.dropShape();
-          if (me.dropRow >= me.maxRow - 3) {
-            me.getRandomShape();
-          }
+          // if (me.dropRow < me.maxRow - 3) {
+          //   me.dropShape();
+          // } else {
+          //   me.getRandomShape();
+          // }
+
+          me.getRandomShape();
         });
-      }, 100);
+      }, 3000);
     }
   }
 };
