@@ -1,8 +1,12 @@
 <template>
-  <div id="gameBoard" ref="gameBoard"></div>
+  <div id="gameBoard" ref="gameBoard">
+    <h3>{{dropCol}}</h3>
+    <h3>{{dropRow}}</h3>
+  </div>
 </template>
 
 <script>
+import _ from "lodash";
 export default {
   name: "GameBoard",
   props: [],
@@ -28,44 +32,16 @@ export default {
       shapeGenericIndex: 0, //type I0, I1,...
       currentShape: null,
       shapes: {
-        IShape: [
-          [1, 0, 0],
-          [1, 0, 0],
-          [1, 0, 0]
-        ],
+        IShape: [[1, 0, 0], [1, 0, 0], [1, 0, 0]],
 
-        JShape: [
-          [0, 1, 0],
-          [0, 1, 0],
-          [1, 1, 0]
-        ],
+        JShape: [[0, 1, 0], [0, 1, 0], [1, 1, 0]],
 
-        LShape: [
-          [0, 1, 0],
-          [0, 1, 0],
-          [0, 1, 1]
-        ],
+        LShape: [[0, 1, 0], [0, 1, 0], [0, 1, 1]],
 
-        OShape: [
-          [1, 1, 0],
-          [1, 1, 0],
-          [0, 0, 0]
-        ],
-        SShape: [
-          [0, 1, 1],
-          [1, 1, 0],
-          [0, 0, 0]
-        ],
-        TShape: [
-          [1, 1, 1],
-          [0, 1, 0],
-          [0, 1, 0]
-        ],
-        ZShape: [
-          [1, 1, 0],
-          [0, 1, 1],
-          [0, 0, 0]
-        ]
+        OShape: [[1, 1, 0], [1, 1, 0], [0, 0, 0]],
+        SShape: [[0, 1, 1], [1, 1, 0], [0, 0, 0]],
+        TShape: [[1, 1, 1], [0, 1, 0], [0, 1, 0]],
+        ZShape: [[1, 1, 0], [0, 1, 1], [0, 0, 0]]
       }
     };
   },
@@ -76,12 +52,13 @@ export default {
   watch: {},
   methods: {
     initialize() {
+      let me = this;
       new Promise(resolve => {
-        this.createNewBoard();
+        me.createNewBoard();
         resolve();
       }).then(() => {
-        this.runGame();
-        this.listenToKeyDown();
+        me.runGame();
+        me.listenToKeyDown();
       });
     },
 
@@ -131,33 +108,18 @@ export default {
     dropShape() {
       if (this.dropRow < this.maxRow) {
         this.dropRow++;
-      } else if (this.dropRow >= this.maxRow) {
-        this.dropRow = 0;
-        this.dropCol = 3; //format shape to drop center
-      }
+      } 
     },
 
     drawShape(row, col, shapeTypeIndex, shapeGenericIndex) {
-      var me = this;
+      let me = this;
       //clean previous shape
-      me.clearActiveCell();
-
-      //render shape
-      setTimeout(function() {
-        me.renderShape(row, col, shapeTypeIndex, shapeGenericIndex);
-      }, 1500);
-      //console.log("==================================================");
-    },
-
-    clearActiveCell() {
       var cells = document.getElementsByClassName("activeCell");
       cells.forEach(cell => {
         cell.classList.remove("activeCell");
       });
-    },
 
-    renderShape(row, col, shapeTypeIndex, shapeGenericIndex) {
-      var me = this;
+      //render shape
       var currentShape = [];
       switch (shapeTypeIndex) {
         case 0: //IShape
@@ -192,36 +154,60 @@ export default {
           currentShape = me.shapes.IShape;
           break;
       }
-      var cells=[];
+
+      //debugger
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
           let cellRow = row + i;
           let cellCol = col + j;
           if (currentShape[i][j]) {
+            //console.log("get active cell " + cellRow + "-" + cellCol);
             let tempCell = document.getElementById(cellRow + "-" + cellCol);
-            //tempCell.classList.add("activeCell");
-            if (tempCell) cells.push(tempCell);
+            //debugger
+            if (tempCell) tempCell.classList.add("activeCell");
           }
         }
       }
-      if(cells.length>=3){
-        cells.forEach(cell => {
-          cell.classList.add("activeCell");
-        });
-      }
+      //console.log("==================================================");
+    },
+
+    clearActiveCell() {
+      var cells = document.getElementsByClassName("boardCell activeCell");
+      cells.forEach(cell => {
+        cell.classList.remove("activeCell");
+      });
     },
 
     getRandomShape() {
       this.dropRow = 0;
-      this.dropCol = 3; //format shape to drop center
+      this.dropCol = 3; //format shape to drop center     
       var shapeLength = this.shapeTypes.length;
       this.shapeTypeIndex = Math.floor(Math.random() * shapeLength);
-      console.log("shapeIndex"+ this.shapeTypeIndex);
+      console.log("shape type"+ this.shapeTypeIndex);
     },
 
     runGame() {
       let me = this;
-      setInterval(function() {
+      //setInterval
+      // setInterval(function() {
+      //   new Promise(resolve => {
+      //     me.drawShape(
+      //       me.dropRow,
+      //       me.dropCol,
+      //       me.shapeTypeIndex,
+      //       me.shapeGenericIndex
+      //     );
+      //     resolve();
+      //   }).then(() => {
+      //     if (me.dropRow < me.maxRow - 3) {            
+      //       me.dropShape();
+      //     } else {
+      //       me.getRandomShape();
+      //     }
+      //   });
+      // }, 500);
+
+       setInterval(function() {
         new Promise(resolve => {
           me.drawShape(
             me.dropRow,
@@ -231,15 +217,9 @@ export default {
           );
           resolve();
         }).then(() => {
-          // if (me.dropRow < me.maxRow - 3) {
-          //   me.dropShape();
-          // } else {
-          //   me.getRandomShape();
-          // }
-
           me.getRandomShape();
         });
-      }, 3000);
+      }, 500);
     }
   }
 };
